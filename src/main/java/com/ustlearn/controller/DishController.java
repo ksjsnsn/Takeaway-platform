@@ -202,10 +202,10 @@ public class DishController {
         return Result.success(dtoList);
     }
 
-    //TODO 待写停售,然后测试
 
     /**
      * 根据id删除菜品
+     * 批量删除或者单个删除
      *
      * @param ids
      * @return
@@ -218,17 +218,30 @@ public class DishController {
     }
 
     /**
-     * 根据id停售套餐,将状态置为0 为停售状态,1为起售状态
+     * 根据id批量起售/停售菜品,将状态置为0 为停售状态  ,1为起售状态
+     * 前端传过来的是要改变的状态码，即现在正为起售则传0，意为要将其置为停售状态
      *
      * @param ids
      */
-    //待研究动态接收前端传输状态码为1或者0
-/*    @PostMapping("/status/0")
-    public void stop(@RequestParam List<Long> ids) {
+    //动态接收前端传输状态码为1或者0
+    @PostMapping("/status/{status}")
+    //动态接收前端传过来1/0
+    //@PathVariable spring3.0的新功能，用于接收请求路径中的占位符，（""）中的值与请求路径中的值相同。
+    public Result<String> status(@PathVariable("status") Integer status, @RequestParam List<Long> ids) {
         log.info("套餐停售");
-        return;
-    }*/
-
+        log.info("status,{}", status);
+        log.info("ids,{}", ids);
+        LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ids != null, Dish::getId, ids);
+        //根据传的ids批量查询
+        List<Dish> list = dishService.list(queryWrapper);
+        list.forEach((item) -> {
+            //直接改变为要置为的状态
+            item.setStatus(status);
+            dishService.updateById(item);
+        });
+        return Result.success("售卖状态修改成功！");
+    }
 
 
 }

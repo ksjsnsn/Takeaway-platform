@@ -121,7 +121,6 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish>
 
     }
 
-    //TODO 待写停售,然后测试
     /**
      * 根据id删除菜品同时删除关联的口味
      *
@@ -151,7 +150,8 @@ public class DishServiceImpl extends ServiceImpl<DishMapper, Dish>
         LambdaQueryWrapper<DishFlavor> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(DishFlavor::getDishId, ids);
         //删除关系表中的数据 --dish_flavor
-        dishFlavorService.remove(lambdaQueryWrapper);
+        List<DishFlavor> flavors = dishFlavorService.list(lambdaQueryWrapper);
+        dishFlavorService.removeBatchByIds(flavors);
 
     }
 }
